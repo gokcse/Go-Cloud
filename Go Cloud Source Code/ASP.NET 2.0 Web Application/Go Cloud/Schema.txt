@@ -1,0 +1,58 @@
+drop table cloud_usage
+drop table licence
+drop table clouduser_software 
+drop table software
+drop table software_type
+drop table software_status
+drop table role_privilege
+drop table cloud_user
+drop table role
+drop table privilege
+
+create table role(role_id smallint primary key,role_name varchar(100) not null unique)
+insert into role values(1,'admin')
+insert into role values(2,'user')
+
+create table privilege(privilege_id smallint primary key,privilege_name varchar(100) not null unique)
+insert into privilege values(1,'Install Software')
+insert into privilege values(2,'Uninstall Software')
+insert into privilege values(3,'Start Service')
+insert into privilege values(4,'Stop Service')
+insert into privilege values(5,'Download Generic Application')
+insert into privilege values(6,'Get License')
+insert into privilege values(7,'My Usage')
+insert into privilege values(8,'Purchase Software')
+
+create table role_privilege(role_id smallint foreign key references role(role_id) not null,privilege_id smallint foreign key references privilege(privilege_id) not null)
+insert into role_privilege values(1,1)
+insert into role_privilege values(1,2)
+insert into role_privilege values(1,3)
+insert into role_privilege values(1,4)
+insert into role_privilege values(2,5)
+insert into role_privilege values(2,6)
+insert into role_privilege values(2,7)
+insert into role_privilege values(2,8)
+
+
+create table cloud_user(user_name varchar(100) primary key,password varchar(100) not null,email_id varchar(100) not null unique,mac_address varchar(100) unique,join_date datetime not null,role_id smallint foreign key references role(role_id) not null)
+insert into cloud_user values('user','user','user@user.com','11212121212','02/02/2010',2)
+insert into cloud_user values('admin','admin','admin@admin.com','1121212122','02/02/2010',1)
+
+
+create table software_status(status_id smallint primary key,status varchar(10) not null unique)
+insert into software_status values(1,'Running')
+insert into software_status values(2,'Stopped')
+
+
+create table software_type(type_id smallint primary key, type_name varchar(100) not null unique)
+insert into software_type values(1,'JAR')
+insert into software_type values(2,'EXE')
+
+create table software(software_id bigint identity(1,1) primary key,software_name varchar(100) not null unique,software_url varchar(300) not null unique,installed_on datetime not null unique,status_id smallint foreign key references software_status(status_id) not null, description varchar(2048) not null, command varchar(1000) not null unique, software_type smallint foreign key references software_type(type_id) not null, software_ip varchar(100), software_port varchar(10))
+
+create table clouduser_software(user_name varchar(100) foreign key references cloud_user(user_name) not null,software_id bigint foreign key references software(software_id) not null)
+
+create table licence(licence_id bigint identity(1,1) primary key,user_name varchar(100) foreign key references cloud_user(user_name) not null,generated_date datetime not null,expiry_date datetime not null)
+
+create table cloud_usage(user_name varchar(100) foreign key references cloud_user(user_name) not null,software_id bigint foreign key references software(software_id) not null,start_time datetime not null, end_time datetime not null)
+
